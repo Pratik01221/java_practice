@@ -1,0 +1,138 @@
+package demo_practice;
+
+import java.awt.EventQueue;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+
+public class CreateForm extends JFrame {
+
+    private JPanel contentPane;
+    private final ButtonGroup buttonGroup = new ButtonGroup();
+    private JTextField textName;
+    private JTextField textUsername;
+    private JTextField textAddress;
+
+    public static void main(String[] args) {
+        EventQueue.invokeLater(() -> {
+            try {
+                CreateForm frame = new CreateForm();
+                frame.setVisible(true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public CreateForm() {
+        setTitle("Registration Form");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setBounds(100, 100, 450, 300);
+
+        contentPane = new JPanel();
+        contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+        setContentPane(contentPane);
+        contentPane.setLayout(null);
+
+        JLabel lblName = new JLabel("Name:");
+        lblName.setBounds(10, 22, 60, 23);
+        contentPane.add(lblName);
+
+        JLabel lblUsername = new JLabel("Username:");
+        lblUsername.setBounds(10, 55, 80, 23);
+        contentPane.add(lblUsername);
+
+        JLabel lblAddress = new JLabel("Address:");
+        lblAddress.setBounds(10, 84, 80, 23);
+        contentPane.add(lblAddress);
+
+        JLabel lblGender = new JLabel("Gender:");
+        lblGender.setBounds(10, 117, 60, 23);
+        contentPane.add(lblGender);
+
+        JRadioButton rdbtnMale = new JRadioButton("Male");
+        buttonGroup.add(rdbtnMale);
+        rdbtnMale.setBounds(80, 120, 80, 20);
+        contentPane.add(rdbtnMale);
+
+        JRadioButton rdbtnFemale = new JRadioButton("Female");
+        buttonGroup.add(rdbtnFemale);
+        rdbtnFemale.setBounds(170, 120, 80, 20);
+        contentPane.add(rdbtnFemale);
+
+        textName = new JTextField();
+        textName.setBounds(100, 22, 200, 25);
+        contentPane.add(textName);
+
+        textUsername = new JTextField();
+        textUsername.setBounds(100, 55, 200, 25);
+        contentPane.add(textUsername);
+
+        textAddress = new JTextField();
+        textAddress.setBounds(100, 85, 200, 25);
+        contentPane.add(textAddress);
+
+        JButton btnSubmit = new JButton("Submit");
+        btnSubmit.setBounds(80, 170, 100, 30);
+        contentPane.add(btnSubmit);
+
+        JButton btnReset = new JButton("Reset");
+        btnReset.setBounds(200, 170, 100, 30);
+        contentPane.add(btnReset);
+
+   
+        btnSubmit.addActionListener(e -> {
+
+            String name = textName.getText();
+            String username = textUsername.getText();
+            String address = textAddress.getText();
+
+            String gender = "";
+            if (rdbtnMale.isSelected()) {
+                gender = "Male";
+            } else if (rdbtnFemale.isSelected()) {
+                gender = "Female";
+            }
+
+            try {
+                Connection con = DBConnection.getConnection();
+
+                String query = "INSERT INTO users(name, username, address, gender) VALUES (?, ?, ?, ?)";
+                PreparedStatement ps = con.prepareStatement(query);
+
+                ps.setString(1, name);
+                ps.setString(2, username);
+                ps.setString(3, address);
+                ps.setString(4, gender);
+
+                int i = ps.executeUpdate();
+
+                if (i > 0) {
+                    JOptionPane.showMessageDialog(null, "Data Saved Successfully ✅");
+
+                    textName.setText("");
+                    textUsername.setText("");
+                    textAddress.setText("");
+                    buttonGroup.clearSelection();
+
+                } else {
+                    JOptionPane.showMessageDialog(null, "Failed to Save ❌");
+                }
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+
+     
+        btnReset.addActionListener(e -> {
+            textName.setText("");
+            textUsername.setText("");
+            textAddress.setText("");
+            buttonGroup.clearSelection();
+        });
+    }
+}
